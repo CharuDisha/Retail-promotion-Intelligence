@@ -66,16 +66,15 @@ ORDER BY row_count DESC;
 /*
 Observation:
 - The majority of transactions (14,287,219) have a blank value in the sale column,
-  indicating that most products were sold without a recorded promotion.
+  indicating that most transactions do not have a recorded promotion code.
 - Promotion type 'B' appears 1,666,010 times.
 - Promotion type 'S' appears 1,664,212 times.
 - Promotion types 'G' (73,034) and 'C' (40,026) are used much less frequently.
 
 Business Insight:
-- Most sales occur without a promotion.
-- Promotional events represent a relatively small portion of total transactions,
-  making it important to compare promotional and non-promotional periods when
-  evaluating the effectiveness of promotions.
+- Most transactions do not have a recorded promotion code.
+- Recorded promotional events represent a relatively small portion of total transactions.
+- Because the dataset documentation states that a blank promotion code does not necessarily indicate the absence of a promotion, this category should be interpreted with caution.
 */
 
 -- Identify the top 10 stores by total units sold.
@@ -120,24 +119,7 @@ Business Insight:
 
 */
 
--- Calculate summary statistics for the sales dataset.
 
-SELECT
-    SUM(move) AS total_units_sold,
-    ROUND(AVG(price), 2) AS average_price,
-    ROUND(AVG(profit), 2) AS average_profit
-FROM weekly_sales;
-
-/*
-Observation:
-- Total units sold: 302,615,498
-- Average selling price across all transactions: $1.43
-- Average profit across all transactions: $11.81
-
-Business Insight:
-- These summary statistics provide an overall snapshot of the dataset.
-- More meaningful pricing and profitability analyses should be performed at the product or promotion level.
-*/
 
 -- Identify the top 10 products by total units sold.
 select p.description, sum(ws.move) as total_units_sold from products p 
@@ -194,12 +176,12 @@ Observation:
 - Promotion type G recorded the highest average units sold (66.17 units).
 - Promotion type C recorded the second highest average units sold (53.35 units).
 - Promotion types S and B averaged 49.87 and 44.91 units sold, respectively.
-- Transactions without a promotion recorded the lowest average units sold (9.65 units).
+- Transactions without a recorded promotion code averaged 9.65 units sold.
 
 Business Insight:
-- Transactions with promotions are associated with higher average unit sales than transactions without promotions.
-- Promotion type G has the highest average units sold, although it is used much less frequently than promotion types S and B.
-- Additional analysis is needed to determine whether these promotions also improve profitability.
+- Transactions with recorded promotion codes are associated with higher average unit sales than transactions without a recorded promotion code.
+- Promotion type G recorded the highest average units sold, although it was used much less frequently than promotion types S and B.
+- Because a blank promotion code does not necessarily indicate the absence of a promotion, these results should be interpreted with caution.
 */
 
 -- =====================================================
@@ -229,69 +211,32 @@ Business Insight:
 
 -- =====================================================
 -- Business Question:
--- Do products sell more units when they are on promotion?
+-- Do products sell more units when a promotion code is recorded?
 -- =====================================================
 
 select
 case
-    when sale != '' then 'Promotion'
-    else 'No Promotion Code'
-end as promoted,
+    when sale != '' then 'Promotion Code Recorded'
+    else 'No Recorded Promotion Code'
+end as promotion_status,
 round(avg(move), 2) as avg_units_sold
 from weekly_sales
 group by
 case
-    when sale != '' then 'Promotion'
-    else 'No Promotion Code'
+    when sale != '' then 'Promotion Code Recorded'
+    else 'No Recorded Promotion Code'
 end;
 
 /*
 Observation:
-- Transactions with promotions sold an average of 47.86 units.
-- Transactions without promotions sold an average of 9.65 units.
+- Transactions with a recorded promotion code sold an average of 47.86 units.
+- Transactions without a recorded promotion code sold an average of 9.65 units.
 
 Business Insight:
-- Promotional transactions are associated with substantially higher average unit sales than non-promotional transactions.
-- This analysis identifies a strong association between promotions and unit sales.
-- However, this result does not establish that promotions cause higher sales because other factors, such as product popularity, store location, and seasonality, have not yet been controlled for.
-*/
-
--- =====================================================
--- business question:
--- which products experience the greatest increase in average units sold during promotions?
--- =====================================================
-
-select
-    p.description,
-    round(avg(case
-        when sale != '' then ws.move
-    end), 2) as avg_units_promotion,
-    round(avg(case
-        when sale = '' then ws.move
-    end), 2) as avg_units_no_promotion,
-    round(avg(case
-        when sale != '' then ws.move
-    end), 2) -
-    round(avg(case
-        when sale = '' then ws.move
-    end), 2) as promotion_lift
-from weekly_sales ws
-join products p on ws.upc = p.upc
-group by p.description
-order by promotion_lift desc nulls last
-limit 10;
-
-/*
-observation:
-- ibc root beer trial recorded the highest promotion lift at 915.30 units.
-- pepsi cola n/r, starbucks mocha frappaccino, pepsi single serv 20, and pepsi-cola cans also show large positive lifts.
-- several pepsi and coca-cola products appear among the products with the highest promotion lift.
-- some products have null lift values, which means they do not have both promotion and non-promotion records in the data.
-
-business insight:
-- promotions appear to be associated with higher average unit sales for several products.
-- products with the highest promotion lift may be strong candidates for future promotions.
-- products with unusually large lift should be reviewed carefully because the result may be driven by a small number of promotional observations rather than a consistent pattern.
+- Transactions with a recorded promotion code are associated with substantially higher average unit sales than transactions without a recorded promotion code.
+- This analysis identifies a strong association between recorded promotion codes and unit sales.
+- Because the dataset documentation states that a blank promotion code does not necessarily indicate the absence of a promotion, these results should be interpreted with caution.
+- This analysis does not establish that promotions cause higher sales because other factors, such as product popularity, store location, and seasonality, have not been controlled for.
 */
 
 -- =====================================================
@@ -324,14 +269,15 @@ limit 10;
 
 /*
 Observation:
-- IBC ROOT BEER TRIAL recorded the highest promotion lift (915.30 units) based on 563 promotional transactions.
-- PEPSI COLA N/R and COCA-COLA CLASSIC also recorded substantial promotion lifts, each supported by more than 14,000 promotional transactions.
+- IBC ROOT BEER TRIAL recorded the highest promotion lift (915.30 units) based on 563 recorded promotional transactions.
+- PEPSI COLA N/R and COCA-COLA CLASSIC also recorded substantial promotion lifts, each supported by more than 14,000 recorded promotional transactions.
 - Several Pepsi and Coca-Cola products appear among the products with the highest promotion lift.
 
 Business Insight:
-- Promotions are associated with higher average unit sales for several products.
-- Products with large promotion lifts and a high number of promotional transactions provide stronger evidence of consistent promotional performance.
+- Products with recorded promotion codes are associated with higher average unit sales than products without recorded promotion codes.
+- Products with large promotion lifts and a high number of recorded promotional transactions provide stronger evidence of consistent promotional performance.
 - Products with high promotion lift but relatively few promotional transactions should be interpreted with caution because the estimates may be less reliable.
+- Because the dataset documentation states that a blank promotion code does not necessarily indicate the absence of a promotion, promotion lift should be interpreted as the difference between recorded promotion-code transactions and transactions without a recorded promotion code.
 */
 
 
@@ -357,14 +303,96 @@ order by avg_gross_margin_pct desc;
 /*
 Observation:
 - Coupon (C) promotions recorded the highest average gross margin (18.35%).
-- Bonus Buy (B) promotions recorded an average gross margin of 15.24%.
+- Bonus Buy (B) promotions averaged 15.24% gross margin.
 - Transactions without a recorded promotion code averaged an 11.91% gross margin.
 - Simple Price Reduction (S) promotions averaged a 7.87% gross margin.
 - Promotion code G recorded a negative average gross margin (-0.25%).
 
 Business Insight:
-- Different promotion types are associated with different gross margin percentages.
-- Coupon (C) and Bonus Buy (B) promotions are associated with higher average gross margins than the other promotion codes.
+- Different promotion codes are associated with different average gross margin percentages.
+- Coupon (C) and Bonus Buy (B) are associated with higher average gross margins than the other recorded promotion codes.
 - Promotion code G is associated with a negative average gross margin and should be investigated further.
-- Since the promotion variable is not consistently recorded, the "No Promotion Code" category should be interpreted with caution.
+- Because a blank promotion code does not necessarily indicate the absence of a promotion, the "No Recorded Promotion Code" category should be interpreted with caution.
+*/
+
+-- =====================================================
+-- Business Question:
+-- Which products generate the highest total revenue?
+-- =====================================================
+
+select
+    p.description,
+    round(sum(ws.price * ws.move / ws.qty), 2) as total_revenue
+from weekly_sales ws
+join products p on ws.upc = p.upc
+group by p.description
+order by total_revenue desc
+limit 10;
+
+/*
+Observation:
+- PEPSI COLA CANS generated the highest total revenue ($48.08 million).
+- Coca-Cola and Pepsi products dominate the list of highest revenue-generating products.
+- Several canned soft drink products consistently appear among the top revenue contributors.
+
+Business Insight:
+- High unit sales do not always correspond to the highest revenue because product prices and package sizes differ.
+- Revenue provides a more meaningful business metric than unit sales when evaluating product performance.
+- High-revenue products may be prioritized for inventory planning and promotional decision-making alongside demand and gross margin considerations.
+*/
+
+-- =====================================================
+-- Business Question:
+-- Which promotion codes are associated with the highest total revenue?
+-- =====================================================
+
+select
+case
+    when sale = '' then 'No Recorded Promotion Code'
+    else sale
+end as promotion_code,
+round(sum(ws.price * ws.move / ws.qty), 2) as total_revenue
+from weekly_sales ws
+group by
+case
+    when sale = '' then 'No Recorded Promotion Code'
+    else sale
+end
+order by total_revenue desc;
+/*
+Observation:
+- Transactions without a recorded promotion code generated the highest total revenue ($202.68 million).
+- Simple Price Reduction (S) generated $159.31 million in total revenue.
+- Bonus Buy (B) generated $119.54 million in total revenue.
+- Promotion Code G and Coupon (C) generated substantially lower total revenue.
+
+Business Insight:
+- Transactions without a recorded promotion code account for the largest share of revenue in the dataset.
+- Among the recorded promotion codes, Simple Price Reduction (S) generated the highest total revenue, followed by Bonus Buy (B).
+- Total revenue should not be interpreted as promotion effectiveness because promotion codes are used at different frequencies, and a blank promotion code does not necessarily indicate that no promotion occurred.
+*/
+
+-- =====================================================
+-- Business Question:
+-- Which stores generate the highest total revenue?
+-- =====================================================
+
+select
+    store,
+    round(sum(price * move / qty), 2) as total_revenue
+from weekly_sales
+group by store
+order by total_revenue desc
+limit 10;
+
+/*
+Observation:
+- Store 102 generated the highest total revenue ($9.54 million).
+- Stores 122, 126, 8, and 98 also generated more than $8 million in revenue.
+- The top 10 stores generated between approximately $7.56 million and $9.54 million in total revenue.
+
+Business Insight:
+- Revenue is concentrated among a relatively small group of high-performing stores.
+- Identifying the demographic characteristics of these stores may help explain differences in store performance.
+- The next step is to combine store revenue with demographic information to determine whether factors such as income, education, household size, or population density are associated with higher revenue.
 */
