@@ -1,1 +1,42 @@
-data/raw/weekly_sales.csv
+# =========================
+# Raw source data
+# =========================
+data/raw/*.csv
+data/raw/*.dta
+data/raw/*.pdf
+
+# =========================
+# Large generated files
+# =========================
+data/processed/*.duckdb
+data/processed/*.duckdb.wal
+data/processed/*.pkl
+
+# =========================
+# Large intermediate outputs
+# =========================
+data/processed/control_diagnostics.csv
+data/processed/estimation_results.csv
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+
+# =========================
+# Environment / secrets
+# =========================
+.env
+.venv/
+venv/
+
+# =========================
+# VS Code
+# =========================
+.vscode/
