@@ -40,3 +40,6 @@ venv/
 # VS Code
 # =========================
 .vscode/
+
+# Raw source data - obtain separately from the Kilts Center
+data/raw/*
