@@ -5,7 +5,7 @@ Edit the paths below to match your repository layout, then run scripts 00-07 in 
 import os
 
 # --- directories ---
-DATA_DIR = "./data/raw"          # wsdr.csv, upcsdr.csv, codebook PDF go here
+DATA_DIR = "./data/raw"          # weekly_sales.csv, products.csv, codebook PDF go here
 PROCESSED_DIR = "./data/processed"  # all pipeline outputs land here
 DB_PATH = os.path.join(PROCESSED_DIR, "build.duckdb")
 
