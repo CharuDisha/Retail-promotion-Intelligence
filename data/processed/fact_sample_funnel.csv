@@ -1,0 +1,8 @@
+stage,campaigns_remaining,campaigns_removed,description
+Candidates identified,94831,0,Reproducible candidate campaigns from Stage 2's gaps-and-islands construction.
+Store participation,38887,55944,Excludes campaigns with fewer than 10 participating stores.
+Pre-treatment history,37797,1090,Excludes campaigns with fewer than 8 weeks of pre-period data.
+Post-treatment history,36895,902,Excludes campaigns with fewer than 8 weeks of post-period data.
+Control pool size,36368,527,Excludes campaigns with fewer than 5 candidate control stores.
+Treated exposure,236,36132,Excludes campaigns below 400 treated store-weeks of exposure.
+Included in v1 sample,236,0,Passed all five identification-quality thresholds above.
