@@ -28,7 +28,6 @@ This project asks a narrower, answerable question for the soft-drink category in
 
 ### Page 1 — Promotion Decision Center
 
-![Promotion Decision Center](dashboard/promotion_decision_center.png)
 
 Answers: what should we do? This page opens with the sample-integrity funnel so the scope of the analysis is never hidden, followed by recommendation KPIs, the Repeat/Redesign/Monitor/Stop distribution, an incremental margin vs. incremental units scatter colored by recommendation, and a priority action queue ordering campaigns by the documented decision priority. It is designed to be read in under two minutes without needing any statistical background.
 
