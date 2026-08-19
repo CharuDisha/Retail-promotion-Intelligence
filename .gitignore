@@ -43,3 +43,9 @@ venv/
 
 # Raw source data - obtain separately from the Kilts Center
 data/raw/*
+
+# Intermediate processed outputs
+data/processed/control_product_availability.csv
+data/processed/control_sets.csv
+data/processed/store_demographics.csv
+data/processed/week_decode.csv
